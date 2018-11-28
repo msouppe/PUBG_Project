@@ -1,0 +1,137 @@
+---
+title: "PUBG Strategies"
+output: pdf_document
+---
+
+## Install libraries
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(reshape2)
+library(tidyr)
+library(dplyr)
+library(scales)
+source('util.R')
+```
+
+## Load data
+```{r}
+#setwd("/Users/alex/Desktop/AMS204-FinalProject")
+PUBG_full <- read.csv("data/train_V2.csv")
+#PUBG_test <- read.csv("data/test_V2.csv")
+```
+
+## Seperating dataset by match type's covariants and response
+```{r}
+# Solo dataset
+solo <- preprocess(PUBG_full, 'solo')
+solo_org_large_cov <- solo$first
+solo_org_small_cov <- solo$second
+solo_org_large_resp <- solo$third
+solo_org_small_resp <- solo$fourth
+solo_org_large_full <- data.frame(solo_org_large_cov, solo_org_large_resp)
+solo_org_small_full <- data.frame(solo_org_large_cov, solo_org_large_resp)
+
+# Solo-Fpp dataset
+solo_fpp <- preprocess(PUBG_full, 'solo-fpp')
+solo_fpp_large_df <- solo_fpp$first
+solo_fpp_small_df <- solo_fpp$second
+solo_fpp_large_resp <- solo_fpp$third
+solo_fpp_small_resp <- solo_fpp$fourth
+solo_fpp_org_large_full <- data.frame(solo_fpp_org_large_cov, solo_fpp_org_large_resp)
+solo_fpp_org_small_full <- data.frame(solo_fpp_org_large_cov, solo_fpp_org_large_resp)
+
+# Duo dataset
+duo <- preprocess(PUBG_full, 'duo')
+duo_large_df <- duo$first
+duo_small_df <- duo$second
+duo_large_resp <- duo$third
+duo_small_resp <- duo$fourth
+duo_org_large_full <- data.frame(duo_org_large_cov, duo_org_large_resp)
+duo_org_small_full <- data.frame(duo_org_large_cov, duo_org_large_resp)
+
+# Duo-Fpp dataset
+duo_fpp <- preprocess(PUBG_full, 'duo-fpp')
+duo_fpp_large_df <- duo_fpp$first
+duo_fpp_small_df <- duo_fpp$second
+duo_fpp_large_resp <- duo_fpp$third
+duo_fpp_small_resp <- duo_fpp$fourth
+duo_fpp_org_large_full <- data.frame(duo_fpp_org_large_cov, duo_fpp_org_large_resp)
+duo_fpp_org_small_full <- data.frame(duo_fpp_org_large_cov, duo_fpp_org_large_resp)
+
+# Squad dataset
+squad <- preprocess(PUBG_full, 'squad')
+squad_large_df <- squad$first
+squad_small_df <- squad$second
+squad_large_resp <- squad$third
+squad_small_resp <- squad$fourth
+squad_org_large_full <- data.frame(squad_org_large_cov, squad_org_large_resp)
+squad_org_small_full <- data.frame(squad_org_large_cov, squad_org_large_resp)
+
+# Squad-Fpp dataset
+squad_fpp <- preprocess(PUBG_full, 'squad-fpp')
+squad_fpp_large_df <- squad_fpp$first
+squad_fpp_small_df <- squad_fpp$second
+squad_fpp_large_resp <- squad_fpp$third
+squad_fpp_small_resp <- squad_fpp$fourth
+squad_fpp_org_large_full <- data.frame(squad_fpp_org_large_cov, squad_fpp_org_large_resp)
+squad_fpp_org_small_full <- data.frame(squad_fpp_org_large_cov, squad_fpp_org_large_resp)
+```
+
+```{r}
+### Solo
+
+# Splitting dataset into clusters
+solo_org_large_full <- append_clustering_feature(solo_org_large_cov, solo_org_large_full)
+solo_org_large <- split_by_the_four_clusters(solo_org_large_full)
+cluster_1_solo_org_large <- data.frame(solo_org_large$first) 
+cluster_2_solo_org_large <- data.frame(solo_org_large$second) 
+cluster_3_solo_org_large <- data.frame(solo_org_large$third) 
+cluster_4_solo_org_large <- data.frame(solo_org_large$fourth)
+
+# Splitting the clusters into covariants and response
+omit_response <- !names(solo_org_large_full) %in% c("winPlacePerc") 
+
+cluster_1_solo_org_large_cov <- cluster_1_solo_org_large[, omit_response]
+cluster_1_solo_org_large_resp <- cluster_1_solo_org_large$winPlacePerc
+cluster_2_solo_org_large_cov <- cluster_2_solo_org_large[, omit_response]
+cluster_2_solo_org_large_resp <- cluster_2_solo_org_large$winPlacePerc
+cluster_3_solo_org_large_cov <- cluster_3_solo_org_large[, omit_response]
+cluster_3_solo_org_large_resp <- cluster_3_solo_org_large$winPlacePerc
+cluster_4_solo_org_large_cov <- cluster_4_solo_org_large[, omit_response]
+cluster_4_solo_org_large_resp <- cluster_4_solo_org_large$winPlacePerc
+```
+
+```{r}
+# Solo Fpp
+```
+
+```{r}
+# Duo
+```
+
+```{r}
+# Duo Fpp
+```
+
+## Transform the response of the data for linear regression
+```{r}
+# TODO Last once normal linear regression is running
+```
+
+## Linear Regression (run model and assess the fit)
+```{r}
+
+```
+
+## Add >.9 Threshold Feature to a new data frame 
+```{r}
+
+```
+
+## Logistic Regression (run model and check classification percent correct)
+```{r}
+
+```
+
+## Extra Add ROC Curves and play with threshold of log regression if we have time

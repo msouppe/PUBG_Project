@@ -12,9 +12,9 @@ library(reshape2)
 library(tidyr)
 library(dplyr)
 library(scales)
-setwd("/Users/alex/Desktop/PUBG_Stats")
-PUBG_full <- read.csv("data/train_V2.csv")
-PUBG_test <- read.csv("data/test_V2.csv")
+setwd("/Users/mariette/Desktop/PUBG_Project/")
+PUBG_full <- read.csv("data/train_V2.csv", header=TRUE, sep=",")
+PUBG_test <- read.csv("data/test_V2.csv", header=TRUE, sep=",")
 ```
 
 ## Process the Data
@@ -31,7 +31,7 @@ sorted_duo_fpp_with_response <- duo_fpp_data_with_response[order(duo_fpp_data_wi
 match_1_with_response <- sorted_duo_fpp_with_response[which(sorted_duo_fpp_with_response$matchId=="0006eb8c17708d" ),] 
 match_1_groups_with_response <- unique(match_1_with_response$groupId)
 head(match_1_with_response)
-length(match_1_groups)
+length(match_1_groups_with_response)
 ```
 
 
@@ -166,4 +166,26 @@ ggplot(dat.g, aes(x = type, y = value )) +
  # geom_bar(aes(fill = country), stat = "identity", position = "dodge")
 
 ```
+
+Correlation Plot
+```{r}
+library(corrplot)
+test <- PUBG_full[,!(names(PUBG_full) %in% drop_categories)]
+M <- cor(test[sapply(test, function(x) !is.factor(x))])
+corrplot(M, method="square", type="upper", tl.col="black", tl.srt=45, diag=FALSE, tl.cex = 0.5)
+```
+
+Sub Correlation Plot
+```{r}
+total_distance_traveled <- function(df, method1, method2, method3){
+df <- df[method1+"Distance"] + df[method2+"Distance"] + method[method3+"Distance"]
+return(df)
+}
+
+healsAndBoosts <- function(df, method1, method2, method3){
+df[] <- df[method1+"Distance"] + df[method2+"Distance"] + method[method3+"Distance"]
+return()
+}
+```
+
 
