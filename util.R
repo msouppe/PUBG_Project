@@ -82,3 +82,14 @@ split_by_the_four_clusters <- function(full_type_frame) {
   cluster_4_df <- full_type_frame[which(full_type_frame$cluster == 4), ] 
   return(list(first = cluster_1_df,second = cluster_2_df,third = cluster_3_df,fourth = cluster_4_df))
 }
+
+# Logistic regression function
+logistic <- function(covariants, response) {
+  threhold <- response >= 0.9
+  recombined_data <- data.frame(covariants, response)
+  colnames(recombined_data)[20] <- 'thresh'
+  forumla <- as.vector(thresh)*1 ~ .
+  model <- glm(forumla, family=binomial(link='logit'), data=foo)
+  return(model)
+}
+

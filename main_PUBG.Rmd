@@ -23,6 +23,7 @@ PUBG_full <- read.csv("data/train_V2.csv")
 
 ## Seperating dataset by match type's covariants and response
 ```{r}
+library("plyr")
 # Solo dataset
 solo <- preprocess(PUBG_full, 'solo')
 solo_org_large_cov <- solo$first
@@ -30,52 +31,64 @@ solo_org_small_cov <- solo$second
 solo_org_large_resp <- solo$third
 solo_org_small_resp <- solo$fourth
 solo_org_large_full <- data.frame(solo_org_large_cov, solo_org_large_resp)
-solo_org_small_full <- data.frame(solo_org_large_cov, solo_org_large_resp)
+solo_org_small_full <- data.frame(solo_org_small_cov, solo_org_small_resp)
+colnames(solo_org_large_full)[20] <- 'winPlacePerc'
+colnames(solo_org_small_full)[20] <- 'winPlacePerc'
 
 # Solo-Fpp dataset
 solo_fpp <- preprocess(PUBG_full, 'solo-fpp')
-solo_fpp_large_df <- solo_fpp$first
-solo_fpp_small_df <- solo_fpp$second
+solo_fpp_large_cov <- solo_fpp$first
+solo_fpp_small_cov <- solo_fpp$second
 solo_fpp_large_resp <- solo_fpp$third
 solo_fpp_small_resp <- solo_fpp$fourth
-solo_fpp_org_large_full <- data.frame(solo_fpp_org_large_cov, solo_fpp_org_large_resp)
-solo_fpp_org_small_full <- data.frame(solo_fpp_org_large_cov, solo_fpp_org_large_resp)
+solo_fpp_org_large_full <- data.frame(solo_fpp_large_cov, solo_fpp_large_resp)
+solo_fpp_org_small_full <- data.frame(solo_fpp_small_cov, solo_fpp_small_resp)
+colnames(solo_fpp_org_large_full)[20] <- 'winPlacePerc'
+colnames(solo_fpp_org_small_full)[20] <- 'winPlacePerc'
 
 # Duo dataset
 duo <- preprocess(PUBG_full, 'duo')
-duo_large_df <- duo$first
-duo_small_df <- duo$second
-duo_large_resp <- duo$third
-duo_small_resp <- duo$fourth
+duo_org_large_cov <- duo$first
+duo_org_small_cov <- duo$second
+duo_org_large_resp <- duo$third
+duo_org_small_resp <- duo$fourth
 duo_org_large_full <- data.frame(duo_org_large_cov, duo_org_large_resp)
-duo_org_small_full <- data.frame(duo_org_large_cov, duo_org_large_resp)
+duo_org_small_full <- data.frame(duo_org_small_cov, duo_org_small_resp)
+colnames(duo_org_large_full)[20] <- 'winPlacePerc'
+colnames(duo_org_small_full)[20] <- 'winPlacePerc'
 
 # Duo-Fpp dataset
 duo_fpp <- preprocess(PUBG_full, 'duo-fpp')
-duo_fpp_large_df <- duo_fpp$first
-duo_fpp_small_df <- duo_fpp$second
+duo_fpp_large_cov <- duo_fpp$first
+duo_fpp_small_cov <- duo_fpp$second
 duo_fpp_large_resp <- duo_fpp$third
 duo_fpp_small_resp <- duo_fpp$fourth
-duo_fpp_org_large_full <- data.frame(duo_fpp_org_large_cov, duo_fpp_org_large_resp)
-duo_fpp_org_small_full <- data.frame(duo_fpp_org_large_cov, duo_fpp_org_large_resp)
+duo_fpp_org_large_full <- data.frame(duo_fpp_large_cov, duo_fpp_large_resp)
+duo_fpp_org_small_full <- data.frame(duo_fpp_small_cov, duo_fpp_small_resp)
+colnames(duo_fpp_org_large_full)[20] <- 'winPlacePerc'
+colnames(duo_fpp_org_small_full)[20] <- 'winPlacePerc'
 
 # Squad dataset
 squad <- preprocess(PUBG_full, 'squad')
-squad_large_df <- squad$first
-squad_small_df <- squad$second
-squad_large_resp <- squad$third
-squad_small_resp <- squad$fourth
+squad_org_large_cov <- squad$first
+squad_org_small_cov <- squad$second
+squad_org_large_resp <- squad$third
+squad_org_small_resp <- squad$fourth
 squad_org_large_full <- data.frame(squad_org_large_cov, squad_org_large_resp)
-squad_org_small_full <- data.frame(squad_org_large_cov, squad_org_large_resp)
+squad_org_small_full <- data.frame(squad_org_small_cov, squad_org_small_resp)
+colnames(squad_org_large_full)[20] <- 'winPlacePerc'
+colnames(squad_org_small_full)[20] <- 'winPlacePerc'
 
 # Squad-Fpp dataset
 squad_fpp <- preprocess(PUBG_full, 'squad-fpp')
-squad_fpp_large_df <- squad_fpp$first
-squad_fpp_small_df <- squad_fpp$second
+squad_fpp_large_cov <- squad_fpp$first
+squad_fpp_small_cov <- squad_fpp$second
 squad_fpp_large_resp <- squad_fpp$third
 squad_fpp_small_resp <- squad_fpp$fourth
-squad_fpp_org_large_full <- data.frame(squad_fpp_org_large_cov, squad_fpp_org_large_resp)
-squad_fpp_org_small_full <- data.frame(squad_fpp_org_large_cov, squad_fpp_org_large_resp)
+squad_fpp_org_large_full <- data.frame(squad_fpp_large_cov, squad_fpp_large_resp)
+squad_fpp_org_small_full <- data.frame(squad_fpp_small_cov, squad_fpp_small_resp)
+colnames(squad_fpp_org_large_full)[20] <- 'winPlacePerc'
+colnames(squad_fpp_org_small_full)[20] <- 'winPlacePerc'
 ```
 
 ```{r}
