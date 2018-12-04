@@ -44,7 +44,7 @@ preprocess <- function(dataset, matchtype) {
   mt_large_map_dataset <- omit_data_fields(large_map_dataset, matchtype)
   mt_small_map_dataset <- omit_data_fields(small_map_dataset, matchtype)
 
-  data_out <- list(first=mt_large_map_dataset, second=mt_small_map_dataset, third=large_map_response, fourth=small_map_response)
+  data_out <- list(first=mt_small_map_dataset, second=small_map_response)
   return(data_out)
 }
 
@@ -89,7 +89,7 @@ logistic <- function(covariants, response) {
   recombined_data <- data.frame(covariants, response)
   colnames(recombined_data)[20] <- 'thresh'
   forumla <- as.vector(thresh)*1 ~ .
-  model <- glm(forumla, family=binomial(link='logit'), data=foo)
+  model <- glm(forumla, family=binomial(link='logit'), data=recombined_data)
   return(model)
 }
 

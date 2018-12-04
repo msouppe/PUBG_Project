@@ -11,6 +11,7 @@ library(reshape2)
 library(tidyr)
 library(dplyr)
 library(scales)
+library("plyr")
 source('util.R')
 ```
 
@@ -23,96 +24,43 @@ PUBG_full <- read.csv("data/train_V2.csv")
 
 ## Seperating dataset by match type's covariants and response
 ```{r}
-library("plyr")
 # Solo dataset
 solo <- preprocess(PUBG_full, 'solo')
-solo_org_large_cov <- solo$first
-solo_org_small_cov <- solo$second
-solo_org_large_resp <- solo$third
-solo_org_small_resp <- solo$fourth
-solo_org_large_full <- data.frame(solo_org_large_cov, solo_org_large_resp)
+solo_org_small_cov <- solo$first
+solo_org_small_resp <- solo$second
 solo_org_small_full <- data.frame(solo_org_small_cov, solo_org_small_resp)
-colnames(solo_org_large_full)[20] <- 'winPlacePerc'
 colnames(solo_org_small_full)[20] <- 'winPlacePerc'
 
 # Solo-Fpp dataset
 solo_fpp <- preprocess(PUBG_full, 'solo-fpp')
-solo_fpp_large_cov <- solo_fpp$first
-solo_fpp_small_cov <- solo_fpp$second
-solo_fpp_large_resp <- solo_fpp$third
-solo_fpp_small_resp <- solo_fpp$fourth
-solo_fpp_org_large_full <- data.frame(solo_fpp_large_cov, solo_fpp_large_resp)
+solo_fpp_small_cov <- solo_fpp$first
+solo_fpp_small_resp <- solo_fpp$second
 solo_fpp_org_small_full <- data.frame(solo_fpp_small_cov, solo_fpp_small_resp)
-colnames(solo_fpp_org_large_full)[20] <- 'winPlacePerc'
 colnames(solo_fpp_org_small_full)[20] <- 'winPlacePerc'
-
-# Duo dataset
-duo <- preprocess(PUBG_full, 'duo')
-duo_org_large_cov <- duo$first
-duo_org_small_cov <- duo$second
-duo_org_large_resp <- duo$third
-duo_org_small_resp <- duo$fourth
-duo_org_large_full <- data.frame(duo_org_large_cov, duo_org_large_resp)
-duo_org_small_full <- data.frame(duo_org_small_cov, duo_org_small_resp)
-colnames(duo_org_large_full)[20] <- 'winPlacePerc'
-colnames(duo_org_small_full)[20] <- 'winPlacePerc'
-
-# Duo-Fpp dataset
-duo_fpp <- preprocess(PUBG_full, 'duo-fpp')
-duo_fpp_large_cov <- duo_fpp$first
-duo_fpp_small_cov <- duo_fpp$second
-duo_fpp_large_resp <- duo_fpp$third
-duo_fpp_small_resp <- duo_fpp$fourth
-duo_fpp_org_large_full <- data.frame(duo_fpp_large_cov, duo_fpp_large_resp)
-duo_fpp_org_small_full <- data.frame(duo_fpp_small_cov, duo_fpp_small_resp)
-colnames(duo_fpp_org_large_full)[20] <- 'winPlacePerc'
-colnames(duo_fpp_org_small_full)[20] <- 'winPlacePerc'
-
-# Squad dataset
-squad <- preprocess(PUBG_full, 'squad')
-squad_org_large_cov <- squad$first
-squad_org_small_cov <- squad$second
-squad_org_large_resp <- squad$third
-squad_org_small_resp <- squad$fourth
-squad_org_large_full <- data.frame(squad_org_large_cov, squad_org_large_resp)
-squad_org_small_full <- data.frame(squad_org_small_cov, squad_org_small_resp)
-colnames(squad_org_large_full)[20] <- 'winPlacePerc'
-colnames(squad_org_small_full)[20] <- 'winPlacePerc'
-
-# Squad-Fpp dataset
-squad_fpp <- preprocess(PUBG_full, 'squad-fpp')
-squad_fpp_large_cov <- squad_fpp$first
-squad_fpp_small_cov <- squad_fpp$second
-squad_fpp_large_resp <- squad_fpp$third
-squad_fpp_small_resp <- squad_fpp$fourth
-squad_fpp_org_large_full <- data.frame(squad_fpp_large_cov, squad_fpp_large_resp)
-squad_fpp_org_small_full <- data.frame(squad_fpp_small_cov, squad_fpp_small_resp)
-colnames(squad_fpp_org_large_full)[20] <- 'winPlacePerc'
-colnames(squad_fpp_org_small_full)[20] <- 'winPlacePerc'
 ```
 
 ```{r}
 ### Solo
 
 # Splitting dataset into clusters
-solo_org_large_full <- append_clustering_feature(solo_org_large_cov, solo_org_large_full)
-solo_org_large <- split_by_the_four_clusters(solo_org_large_full)
-cluster_1_solo_org_large <- data.frame(solo_org_large$first) 
-cluster_2_solo_org_large <- data.frame(solo_org_large$second) 
-cluster_3_solo_org_large <- data.frame(solo_org_large$third) 
-cluster_4_solo_org_large <- data.frame(solo_org_large$fourth)
+solo_org_small_full <- append_clustering_feature(solo_org_small_cov, solo_org_small_full)
+solo_org_small <- split_by_the_four_clusters(solo_org_small_full)
+cluster_1_solo_org_small <- data.frame(solo_org_small$first) 
+cluster_2_solo_org_small <- data.frame(solo_org_small$second) 
+cluster_3_solo_org_small <- data.frame(solo_org_small$third) 
+cluster_4_solo_org_small <- data.frame(solo_org_small$fourth)
 
 # Splitting the clusters into covariants and response
-omit_response <- !names(solo_org_large_full) %in% c("winPlacePerc") 
+omit_response <- !names(solo_org_small_full) %in% c("winPlacePerc") 
 
-cluster_1_solo_org_large_cov <- cluster_1_solo_org_large[, omit_response]
-cluster_1_solo_org_large_resp <- cluster_1_solo_org_large$winPlacePerc
-cluster_2_solo_org_large_cov <- cluster_2_solo_org_large[, omit_response]
-cluster_2_solo_org_large_resp <- cluster_2_solo_org_large$winPlacePerc
-cluster_3_solo_org_large_cov <- cluster_3_solo_org_large[, omit_response]
-cluster_3_solo_org_large_resp <- cluster_3_solo_org_large$winPlacePerc
-cluster_4_solo_org_large_cov <- cluster_4_solo_org_large[, omit_response]
-cluster_4_solo_org_large_resp <- cluster_4_solo_org_large$winPlacePerc
+cluster_1_solo_org_small_cov <- cluster_1_solo_org_small[, omit_response]
+cluster_1_solo_org_small_resp <- cluster_1_solo_org_small$winPlacePerc
+cluster_2_solo_org_small_cov <- cluster_2_solo_org_small[, omit_response]
+cluster_2_solo_org_small_resp <- cluster_2_solo_org_small$winPlacePerc
+cluster_3_solo_org_small_cov <- cluster_3_solo_org_small[, omit_response]
+cluster_3_solo_org_small_resp <- cluster_3_solo_org_small$winPlacePerc
+cluster_4_solo_org_small_cov <- cluster_4_solo_org_small[, omit_response]
+cluster_4_solo_org_small_resp <- cluster_4_solo_org_small$winPlacePerc
 ```
 
 ```{r}
@@ -127,24 +75,11 @@ cluster_4_solo_org_large_resp <- cluster_4_solo_org_large$winPlacePerc
 # Duo Fpp
 ```
 
-## Transform the response of the data for linear regression
-```{r}
-# TODO Last once normal linear regression is running
-```
-
-## Linear Regression (run model and assess the fit)
-```{r}
-
-```
-
-## Add >.9 Threshold Feature to a new data frame 
-```{r}
-
-```
-
 ## Logistic Regression (run model and check classification percent correct)
 ```{r}
+solo_org_logit <- logistic(solo_org_small_cov, solo_org_small_resp)
+summary(solo_org_logit)
 
+solo_fpp_logit <- logistic(solo_fpp_small_cov, solo_fpp_small_resp)
+summary(solo_fpp_logit)
 ```
-
-## Extra Add ROC Curves and play with threshold of log regression if we have time
