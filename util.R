@@ -24,6 +24,8 @@ omit_data_fields <- function(dataset, matchtype) {
 
 # Subset data into map sizes and response
 preprocess <- function(dataset, matchtype) { 
+  dataset <- dataset[complete.cases(dataset), ]
+  
   # Map sizes; large and small 
   large_map <- dataset$matchDuration >= 1600
   small_map <- dataset$matchDuration < 1600
@@ -43,7 +45,7 @@ preprocess <- function(dataset, matchtype) {
   # Omit data fields that won't be used for analyzing
   mt_large_map_dataset <- omit_data_fields(large_map_dataset, matchtype)
   mt_small_map_dataset <- omit_data_fields(small_map_dataset, matchtype)
-
+  
   data_out <- list(first=mt_small_map_dataset, second=small_map_response)
   return(data_out)
 }
@@ -85,11 +87,27 @@ split_by_the_four_clusters <- function(full_type_frame) {
 
 # Logistic regression function
 logistic <- function(covariants, response) {
-  threhold <- response >= 0.9
-  recombined_data <- data.frame(covariants, response)
-  colnames(recombined_data)[20] <- 'thresh'
-  forumla <- as.vector(thresh)*1 ~ .
-  model <- glm(forumla, family=binomial(link='logit'), data=recombined_data)
-  return(model)
+  threhold <- (response >= 0.9)*1
+  recombined_data <- data.frame(covariants, threhold)
+  # colnames(recombined_data)[20] <- 'thresh'
+  # forumla <-threhold  ~ .
+  mod <- glm(threhold ~ ., family=binomial(link='logit'), data=recombined_data)
+  return(list(model=mod, thresh=threhold))
 }
 
+# Get accuracy()
+accuracy <- function(model, covariants, threhold) {
+  prob <- predict(model, covariants, type='response')
+  pred <- ifelse(prob > 0.5, 1, 0)
+  actual <- ifelse(threhold > 0.5, 1, 0)
+  acc <- mean(pred == actual)
+  paste(toString(round(acc*100, 2)), "%")
+  return(acc)
+}
+
+
+dropNA <- function(dataset) {
+  df <- data.frame(dataset$first, dataset$second)
+  newData <- df[complete.cases(df), ]
+  return(newData)
+}
