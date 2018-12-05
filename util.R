@@ -12,10 +12,10 @@ omit_data_fields <- function(dataset, matchtype) {
   
   if (matchtype == "solo" | matchtype == "solo-fpp") {
     omit_categories <- c("winPlacePerc", "winPoints","killPoints","Id","groupId",
-                     "matchId","matchType","DBNOs","revives","rankPoints")    
+                     "matchId","matchType","DBNOs","revives","rankPoints", "teamKills")    
   } else {
     omit_categories <- c("winPlacePerc", "winPoints","killPoints","Id","groupId",
-                     "matchId","matchType", "rankPoints") 
+                     "matchId","matchType", "rankPoints","teamKills") 
   }
   
   subset_matchtype_data <- matchtype_data[ , !(names(matchtype_data) %in% omit_categories)]
@@ -101,13 +101,56 @@ accuracy <- function(model, covariants, threhold) {
   pred <- ifelse(prob > 0.5, 1, 0)
   actual <- ifelse(threhold > 0.5, 1, 0)
   acc <- mean(pred == actual)
+  roc(pred, actual)
   paste(toString(round(acc*100, 2)), "%")
   return(acc)
 }
 
+roc <- function(pred, actual) {
+  n1 = sum(pred==0 & actual==0)
+  n2 = sum(pred==0 & actual==1)
+  n3 = sum(pred==1 & actual==0)
+  n4 = sum(pred==1 & actual==1)
+  
+  p1 = n1/ (n1+n2+n3+n4)
+  p2 = n2/ (n1+n2+n3+n4)
+  p3 = n3/ (n1+n2+n3+n4)
+  p4 = n4/ (n1+n2+n3+n4)
+  
+  cat("\nn1: ", n1)
+  cat("\nn2: ", n2)
+  cat("\nn3: ", n3)
+  cat("\nn4: ", n4)
+  
+  cat("\np1: ", p1)
+  cat("\np2: ", p2)
+  cat("\np3: ", p3)
+  cat("\np4: ", p4)
+  
+  cat("\naccuracy rate: ", p1+p4)
+  
+}
 
 dropNA <- function(dataset) {
   df <- data.frame(dataset$first, dataset$second)
   newData <- df[complete.cases(df), ]
   return(newData)
+}
+
+train_test_split <- function (dataset, split, length){
+  cut_off = floor(length*split)
+
+  train_set = dataset[1:cut_off,]
+  test_set = dataset[(cut_off+1):length,]
+  
+  return(list(train=train_set , test=test_set))
+}
+
+train_test_split_resp <- function (dataset, split, length){
+  cut_off = floor(length*split)
+  
+  train_set = dataset[1:cut_off]
+  test_set = dataset[(cut_off+1):length]
+  
+  return(list(train=train_set , test=test_set))
 }

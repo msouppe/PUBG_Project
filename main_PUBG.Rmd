@@ -17,7 +17,7 @@ source('util.R')
 
 ## Load  and Shuffle Data
 ```{r}
-setwd("/Users/alex/Desktop/PUBG_Project")
+#setwd("/Users/alex/Desktop/PUBG_Project")
 set.seed(57483)
 PUBG_full <- read.csv("data/train_V2.csv")
 PUBG_full <- PUBG_full[sample(nrow(PUBG_full)),]
@@ -87,22 +87,97 @@ cluster_4_solo_fpp_small_cov <- cluster_4_solo_fpp_small[, omit_response]
 cluster_4_solo_fpp_small_resp <- cluster_4_solo_fpp_small$winPlacePerc
 ```
 
-## Logistic Regression 
+## Data split into train and test set
+```{r}
+### Solo orginal perspective
+len_org = length(solo_org_small_cov$assists)
+
+# Covariates train, test dataset split
+solo_org_small_cov_set <- train_test_split(solo_org_small_cov, 0.9, len_org)
+train_solo_org_small_cov <- solo_org_small_cov_set$train
+test_solo_org_small_cov <- solo_org_small_cov_set$test
+
+# Response train, test dataset split
+solo_org_small_resp_set <- train_test_split_resp(solo_org_small_resp, 0.9, len_org)
+train_solo_org_small_resp <- solo_org_small_resp_set$train
+test_solo_org_small_resp <- solo_org_small_resp_set$test
+```
+
+```{r}
+### Solo first person perspective
+len_fpp = length(solo_fpp_small_cov$assists)
+
+# Covariates train, test dataset split
+solo_fpp_small_cov_set <- train_test_split(solo_fpp_small_cov, 0.9, len_fpp)
+train_solo_fpp_small_cov <- solo_fpp_small_cov_set$train
+test_solo_fpp_small_cov <- solo_fpp_small_cov_set$test
+
+# Response train, test dataset split
+solo_fpp_small_resp_set <- train_test_split_resp(solo_fpp_small_resp, 0.9, len_fpp)
+train_solo_fpp_small_resp <- solo_fpp_small_resp_set$train
+test_solo_fpp_small_resp <- solo_fpp_small_resp_set$test
+```
+
+
+## SMALLER MODEL - SKIP FOR NOW - Data split into train and test set
+```{r}
+# keep_fields <- c("damageDealt", "kills", "rideDistance", "swimDistance", "walkDistance", "int_dist")
+# 
+# ### Solo orginal perspective
+# # Data fields fine tuning
+# int_dist <- solo_org_small_cov$rideDistance / (solo_org_small_cov$rideDistance + solo_org_small_cov$walkDistance)
+# new_solo_org_small_cov <- data.frame(solo_org_small_cov, int_dist)
+# solo_org_small_cov_sub <- new_solo_org_small_cov[ , (names(new_solo_org_small_cov) %in% keep_fields)]
+# 
+# len_org = length(solo_org_small_cov$assists)
+# # Covariates train, test dataset split
+# solo_org_small_cov_set <- train_test_split(solo_org_small_cov_sub, 0.9, len_org)
+# train_solo_org_small_cov <- solo_org_small_cov_set$train
+# test_solo_org_small_cov <- solo_org_small_cov_set$test
+# 
+# # Response train, test dataset split
+# solo_org_small_resp_set <- train_test_split_resp(solo_org_small_resp, 0.9, len_org)
+# train_solo_org_small_resp <- solo_org_small_resp_set$train
+# test_solo_org_small_resp <- solo_org_small_resp_set$test
+```
+
+```{r}
+# ### Solo first person perspective
+# # Data fields fine tuning
+# int_dist <- solo_fpp_small_cov$rideDistance / (solo_fpp_small_cov$rideDistance + solo_fpp_small_cov$walkDistance)
+# new_solo_fpp_small_cov <- data.frame(solo_fpp_small_cov, int_dist)
+# solo_fpp_small_cov_sub <- new_solo_fpp_small_cov[ , (names(new_solo_fpp_small_cov) %in% keep_fields)]
+# 
+# len_fpp = length(solo_fpp_small_cov$assists)
+# # Covariates train, test dataset split
+# solo_fpp_small_cov_set <- train_test_split(solo_fpp_small_cov_sub, 0.9, len_fpp)
+# train_solo_fpp_small_cov <- solo_fpp_small_cov_set$train
+# test_solo_fpp_small_cov <- solo_fpp_small_cov_set$test
+# 
+# # Response train, test dataset split
+# solo_fpp_small_resp_set <- train_test_split_resp(solo_fpp_small_resp, 0.9, len_fpp)
+# train_solo_fpp_small_resp <- solo_fpp_small_resp_set$train
+# test_solo_fpp_small_resp <- solo_fpp_small_resp_set$test
+```
+
+## Logistic Regression SKIP THIS _ COMMENTED OUT
 ```{r}
 ### Solo orginal perspective
 # OG
-train_solo_org_small_cov <- solo_org_small_cov[1:70097,]
-train_solo_org_small_resp <- solo_org_small_resp[1:70097]
-test_solo_org_small_cov <- solo_org_small_cov[70098:length(solo_org_small_resp),]
-test_solo_org_small_resp <- solo_org_small_resp[70098:length(solo_org_small_resp)]
+#acc_thresh <- test_solo_org_small_resp >= 0.9
+#solo_org_logit <- logistic(train_solo_org_small_cov, train_solo_org_small_resp)
+#A_acc_solo_org <- accuracy(solo_org_logit$model, train_solo_org_small_cov, solo_org_logit$thresh)
 
-acc_thresh <- test_solo_org_small_resp >= 0.9
+#A_acc_solo_org_test <- accuracy(solo_org_logit$model, test_solo_org_small_cov, acc_thresh)
+```
 
-
-solo_org_logit <- logistic(train_solo_org_small_cov, train_solo_org_small_resp)
-A_acc_solo_org <- accuracy(solo_org_logit$model, train_solo_org_small_cov, solo_org_logit$thresh)
-
-A_acc_solo_org_test <- accuracy(solo_org_logit$model, test_solo_org_small_cov, acc_thresh)
+## Logistic Regression 
+```{r}
+### Solo first person perspective
+# OG Full
+solo_org_logit<- logistic(train_solo_org_small_cov, train_solo_org_small_resp)
+acc_org_thresh <- test_solo_org_small_resp >= 0.9
+acc_solo_org_test <- accuracy(solo_org_logit$model, test_solo_org_small_cov, acc_org_thresh)
 
 # Cluster
 c1_solo_org_logit<- logistic(cluster_1_solo_org_small_cov, cluster_1_solo_org_small_resp)
@@ -120,9 +195,10 @@ acc_c4_solo_org <- accuracy(c4_solo_org_logit$model, cluster_4_solo_org_small_co
 
 ```{r}
 ### Solo first person perspective
-# OG
-solo_fpp_logit<- logistic(solo_fpp_small_cov, solo_fpp_small_resp)
-acc_solo_fpp <- accuracy(solo_fpp_logit$model, solo_fpp_small_cov, solo_fpp_logit$thresh)
+# OG Full
+solo_fpp_logit<- logistic(train_solo_fpp_small_cov, train_solo_fpp_small_resp)
+acc_fpp_thresh <- test_solo_fpp_small_resp >= 0.9
+acc_solo_fpp_test <- accuracy(solo_fpp_logit$model, test_solo_fpp_small_cov, acc_fpp_thresh)
 
 # Cluster
 c1_solo_fpp_logit<- logistic(cluster_1_solo_fpp_small_cov, cluster_1_solo_fpp_small_resp)
