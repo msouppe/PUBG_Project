@@ -21,10 +21,9 @@ source('util.R')
 set.seed(57483)
 PUBG_full <- read.csv("data/train_V2.csv")
 PUBG_full <- PUBG_full[sample(nrow(PUBG_full)),]
-#PUBG_test <- read.csv("data/test_V2.csv")
 ```
 
-## Seperating dataset by match type's covariants and response
+## Seperating dataset by match type's covariates and response
 ```{r}
 ### Solo first person perspective dataset
 solo <- preprocess(PUBG_full, 'solo')
@@ -39,61 +38,6 @@ solo_fpp_small_cov <- solo_fpp$first
 solo_fpp_small_resp <- solo_fpp$second
 solo_fpp_small_full <- data.frame(solo_fpp_small_cov, solo_fpp_small_resp)
 colnames(solo_fpp_small_full)[20] <- 'winPlacePerc'
-```
-
-## Logistic Regression - full dataset
-```{r}
-solo_org_logit<- logistic(solo_org_small_cov, solo_org_small_resp)
-solo_org_acc <- accuracy(solo_org_logit$model, solo_org_small_cov, solo_org_logit$thresh)
-
-#c4_solo_fpp_model <- logistic(cluster_4_solo_fpp_small_cov, cluster_4_solo_fpp_small_resp)
-#c4_solo_fpp_accuracy <- accuracy(c4_solo_fpp_model, cluster_4_solo_fpp_small_cov, 1)
-solo_org_prob <- predict(solo_org_model, solo_org_small_cov, type='response')
-solo_org_predicted <- ifelse(solo_org_prob > 0.5, 1, 0)
-solo_org_actual <- ifelse(solo_org_small_resp > 0.5, 1, 0)
-solo_org_accuracy <- mean(solo_org_predicted == solo_org_actual)
-paste(toString(round(solo_org_accuracy*100, 2)), "%")
-
-
-### Solo orginal perspective
-# solo_org_model <- logistic(solo_org_small_cov, solo_org_small_cov)
-# solo_org_prob <- predict(solo_org_model, solo_org_small_cov, type='response')
-# solo_org_predicted <- ifelse(solo_org_prob > 0.5, 1, 0)
-# solo_org_actual <- ifelse(solo_org_small_resp > 0.5, 1, 0)
-# solo_org_accuracy <- mean(solo_org_predicted == solo_org_actual)
-# paste(toString(round(solo_org_accuracy*100, 2)), "%")
-#summary(solo_org_logit)
-
-covariants <- solo_org_small_cov
-response <- solo_org_small_resp
-
-threhold <- (response >= 0.9)*1
-recombined_data <- data.frame(covariants, threhold)
-
-model <- glm(threhold ~ ., family=binomial(link='logit'), data=recombined_data)
-prob <- predict(model, covariants, type='response')
-pred <- ifelse(prob > 0.5, 1, 0)
-actual <- ifelse(threhold > 0.5, 1, 0)
-acc <- mean(pred == actual)
-paste(toString(round(acc*100, 2)), "%")
-
-```
-
-
-
-```{r}
-### Solo first person perspective
-solo_fpp_logit<- logistic(solo_fpp_small_cov, solo_fpp_small_resp)
-solo_fpp_acc <- accuracy(solo_fpp_logit$model, solo_fpp_small_cov, solo_fpp_logit$thresh)
-
-
-solo_fpp_model <- logistic(solo_fpp_small_cov, solo_fpp_small_resp)
-solo_fpp_prob <- predict(solo_fpp_model, solo_fpp_small_cov, type='response')
-solo_fpp_predicted <- ifelse(solo_fpp_prob > 0.5, 1, 0)
-solo_fpp_actual <- ifelse(solo_fpp_small_resp > 0.5, 1, 0)
-solo_fpp_accuracy <- mean(solo_fpp_predicted == solo_fpp_actual)
-paste(toString(round(solo_fpp_accuracy*100, 2)), "%")
-#summary(solo_fpp_logit)
 ```
 
 ## K-means clustering
@@ -143,59 +87,24 @@ cluster_4_solo_fpp_small_cov <- cluster_4_solo_fpp_small[, omit_response]
 cluster_4_solo_fpp_small_resp <- cluster_4_solo_fpp_small$winPlacePerc
 ```
 
-## Logistic Regression - clustering
+## Logistic Regression 
 ```{r}
 ### Solo orginal perspective
-c1_solo_org_model <- logistic(cluster_1_solo_org_small_cov, cluster_1_solo_org_small_resp)
-c1_solo_org_prob <- predict(c1_solo_org_model, cluster_1_solo_org_small_cov, type='response')
-c1_solo_org_predicted <- ifelse(c1_solo_org_prob > 0.5, 1, 0)
-c1_solo_org_actual <- ifelse(cluster_1_solo_org_small_resp > 0.5, 1, 0)
-c1_solo_org_accuracy <- mean(c1_solo_org_predicted == c1_solo_org_actual)
-paste(toString(round(c1_solo_org_accuracy*100, 2)), "%")
+# OG
+train_solo_org_small_cov <- solo_org_small_cov[1:70097,]
+train_solo_org_small_resp <- solo_org_small_resp[1:70097]
+test_solo_org_small_cov <- solo_org_small_cov[70098:length(solo_org_small_resp),]
+test_solo_org_small_resp <- solo_org_small_resp[70098:length(solo_org_small_resp)]
 
-c2_solo_org_model <- logistic(cluster_2_solo_org_small_cov, cluster_2_solo_org_small_resp)
-c2_solo_org_prob <- predict(c2_solo_org_model, cluster_2_solo_org_small_cov, type='response')
-c2_solo_org_predicted <- ifelse(c2_solo_org_prob > 0.5, 1, 0)
-c2_solo_org_actual <- ifelse(cluster_2_solo_org_small_resp > 0.5, 1, 0)
-c2_solo_org_accuracy <- mean(c2_solo_org_predicted == c2_solo_org_actual)
-paste(toString(round(c2_solo_org_accuracy*100, 2)), "%")
+acc_thresh <- test_solo_org_small_resp >= 0.9
 
-c3_solo_org_model <- logistic(cluster_3_solo_org_small_cov, cluster_3_solo_org_small_resp)
-c3_solo_org_prob <- predict(c3_solo_org_model, cluster_3_solo_org_small_cov, type='response')
-c3_solo_org_predicted <- ifelse(c3_solo_org_prob > 0.5, 1, 0)
-c3_solo_org_actual <- ifelse(cluster_3_solo_org_small_resp > 0.5, 1, 0)
-c3_solo_org_accuracy <- mean(c3_solo_org_predicted == c3_solo_org_actual)
-paste(toString(round(c3_solo_org_accuracy*100, 2)), "%")
 
-c4_solo_org_model <- logistic(cluster_4_solo_org_small_cov, cluster_4_solo_org_small_resp)
-c4_solo_org_prob <- predict(c4_solo_org_model, cluster_4_solo_org_small_cov, type='response')
-c4_solo_org_predicted <- ifelse(c4_solo_org_prob > 0.5, 1, 0)
-c4_solo_org_actual <- ifelse(cluster_4_solo_org_small_resp > 0.5, 1, 0)
-c4_solo_org_accuracy <- mean(c4_solo_org_predicted == c4_solo_org_actual)
-paste(toString(round(c1_solo_org_accuracy*100, 2)), "%")
-```
+solo_org_logit <- logistic(train_solo_org_small_cov, train_solo_org_small_resp)
+A_acc_solo_org <- accuracy(solo_org_logit$model, train_solo_org_small_cov, solo_org_logit$thresh)
 
-```{r}
-solo_fpp_logit<- logistic(solo_fpp_small_cov, solo_fpp_small_resp)
-acc_solo_fpp <- accuracy(solo_fpp_logit$model, solo_fpp_small_cov, solo_fpp_logit$thresh)
+A_acc_solo_org_test <- accuracy(solo_org_logit$model, test_solo_org_small_cov, acc_thresh)
 
-c1_solo_fpp_logit<- logistic(cluster_1_solo_fpp_small_cov, cluster_1_solo_fpp_small_resp)
-acc_c1_solo_fpp <- accuracy(c1_solo_fpp_logit$model, cluster_1_solo_fpp_small_cov, c1_solo_fpp_logit$thresh)
-
-c2_solo_fpp_logit<- logistic(cluster_2_solo_fpp_small_cov, cluster_2_solo_fpp_small_resp)
-acc_c2_solo_fpp <- accuracy(c2_solo_fpp_logit$model, cluster_2_solo_fpp_small_cov, c2_solo_fpp_logit$thresh)
-
-c3_solo_fpp_logit<- logistic(cluster_3_solo_fpp_small_cov, cluster_3_solo_fpp_small_resp)
-acc_c3_solo_fpp <- accuracy(c3_solo_fpp_logit$model, cluster_3_solo_fpp_small_cov, c3_solo_fpp_logit$thresh)
-
-c4_solo_fpp_logit<- logistic(cluster_4_solo_fpp_small_cov, cluster_4_solo_fpp_small_resp)
-acc_c4_solo_fpp <- accuracy(c4_solo_fpp_logit$model, cluster_4_solo_fpp_small_cov, c4_solo_fpp_logit$thresh)
-```
-
-```{r}
-solo_org_logit<- logistic(solo_org_small_cov, solo_org_small_resp)
-acc_solo_org <- accuracy(solo_org_logit$model, solo_org_small_cov, solo_org_logit$thresh)
-
+# Cluster
 c1_solo_org_logit<- logistic(cluster_1_solo_org_small_cov, cluster_1_solo_org_small_resp)
 acc_c1_solo_org <- accuracy(c1_solo_org_logit$model, cluster_1_solo_org_small_cov, c1_solo_org_logit$thresh)
 
@@ -209,42 +118,22 @@ c4_solo_org_logit<- logistic(cluster_4_solo_org_small_cov, cluster_4_solo_org_sm
 acc_c4_solo_org <- accuracy(c4_solo_org_logit$model, cluster_4_solo_org_small_cov, c4_solo_org_logit$thresh)
 ```
 
-
 ```{r}
-# c1_solo_fpp_model <- logistic(cluster_1_solo_fpp_small_cov, cluster_1_solo_fpp_small_resp)
-# c1_solo_fpp_prob <- predict(c1_solo_fpp_model, cluster_1_solo_fpp_small_cov, type='response')
-# c1_solo_fpp_predicted <- ifelse(c1_solo_fpp_prob > 0.5, 1, 0)
-# c1_solo_fpp_actual <- ifelse(cluster_1_solo_fpp_small_resp > 0.5, 1, 0)
-# c1_solo_fpp_accuracy <- mean(c1_solo_fpp_predicted == c1_solo_fpp_actual)
-# paste(toString(round(c1_solo_fpp_accuracy*100, 2)), "%")
-# 
-# c2_solo_fpp_model <- logistic(cluster_2_solo_fpp_small_cov, cluster_2_solo_fpp_small_resp)
-# c2_solo_fpp_prob <- predict(c2_solo_fpp_model, cluster_2_solo_fpp_small_cov, type='response')
-# c2_solo_fpp_predicted <- ifelse(c2_solo_fpp_prob > 0.5, 1, 0)
-# c2_solo_fpp_actual <- ifelse(cluster_2_solo_fpp_small_resp > 0.5, 1, 0)
-# c2_solo_fpp_accuracy <- mean(c2_solo_fpp_predicted == c2_solo_fpp_actual)
-# paste(toString(round(c2_solo_fpp_accuracy*100, 2)), "%")
-# 
-# c3_solo_fpp_model <- logistic(cluster_3_solo_fpp_small_cov, cluster_3_solo_fpp_small_resp)
-# c3_solo_fpp_prob <- predict(c3_solo_fpp_model, cluster_3_solo_fpp_small_cov, type='response')
-# c3_solo_fpp_predicted <- ifelse(c3_solo_fpp_prob > 0.5, 1, 0)
-# c3_solo_fpp_actual <- ifelse(cluster_3_solo_fpp_small_resp > 0.5, 1, 0)
-# c3_solo_fpp_accuracy <- mean(c3_solo_fpp_predicted == c3_solo_fpp_actual)
-# paste(toString(round(c3_solo_fpp_accuracy*100, 2)), "%")
-# 
-# c4_solo_fpp_model <- logistic(cluster_4_solo_fpp_small_cov, cluster_4_solo_fpp_small_resp)
-# c4_solo_fpp_prob <- predict(c4_solo_fpp_model, cluster_4_solo_fpp_small_cov, type='response')
-# c4_solo_fpp_predicted <- ifelse(c4_solo_fpp_prob > 0.5, 1, 0)
-# c4_solo_fpp_actual <- ifelse(cluster_4_solo_fpp_small_resp > 0.5, 1, 0)
-# c4_solo_fpp_accuracy <- mean(c4_solo_fpp_predicted == c4_solo_fpp_actual)
-# paste(toString(round(c1_solo_fpp_accuracy*100, 2)), "%")
+### Solo first person perspective
+# OG
+solo_fpp_logit<- logistic(solo_fpp_small_cov, solo_fpp_small_resp)
+acc_solo_fpp <- accuracy(solo_fpp_logit$model, solo_fpp_small_cov, solo_fpp_logit$thresh)
 
-#c4_solo_fpp_model <- logistic(cluster_4_solo_fpp_small_cov, cluster_4_solo_fpp_small_resp)
-#c4_solo_fpp_accuracy <- accuracy(c4_solo_fpp_model, cluster_4_solo_fpp_small_cov, 1)
+# Cluster
+c1_solo_fpp_logit<- logistic(cluster_1_solo_fpp_small_cov, cluster_1_solo_fpp_small_resp)
+acc_c1_solo_fpp <- accuracy(c1_solo_fpp_logit$model, cluster_1_solo_fpp_small_cov, c1_solo_fpp_logit$thresh)
+
+c2_solo_fpp_logit<- logistic(cluster_2_solo_fpp_small_cov, cluster_2_solo_fpp_small_resp)
+acc_c2_solo_fpp <- accuracy(c2_solo_fpp_logit$model, cluster_2_solo_fpp_small_cov, c2_solo_fpp_logit$thresh)
+
+c3_solo_fpp_logit<- logistic(cluster_3_solo_fpp_small_cov, cluster_3_solo_fpp_small_resp)
+acc_c3_solo_fpp <- accuracy(c3_solo_fpp_logit$model, cluster_3_solo_fpp_small_cov, c3_solo_fpp_logit$thresh)
+
+c4_solo_fpp_logit<- logistic(cluster_4_solo_fpp_small_cov, cluster_4_solo_fpp_small_resp)
+acc_c4_solo_fpp <- accuracy(c4_solo_fpp_logit$model, cluster_4_solo_fpp_small_cov, c4_solo_fpp_logit$thresh)
 ```
-
-```{r}
-library(ISwR)
-head(malaria)
-```
-
