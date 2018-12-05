@@ -1,0 +1,175 @@
+---
+title: "PUBG"
+author: "Alex Pearson"
+date: "11/12/2018"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(reshape2)
+library(tidyr)
+library(dplyr)
+library(scales)
+setwd("/Users/alex/Desktop/PUBG_Stats")
+PUBG_full <- read.csv("data/train_V2.csv")
+PUBG_test <- read.csv("data/test_V2.csv")
+```
+
+## Process the Data
+
+We will get a lot of different
+
+```{r}
+# Full Data
+full_response <- PUBG_full$winPlacePerc
+full_data_matrix <- PUBG_full[ , !(names(PUBG_full) %in% c("winPlacePerc"))]
+
+duo_fpp_data_with_response <- PUBG_full[which(PUBG_full$matchType=='duo-fpp'),] 
+sorted_duo_fpp_with_response <- duo_fpp_data_with_response[order(duo_fpp_data_with_response$matchId,duo_fpp_data_with_response$groupId), ]
+match_1_with_response <- sorted_duo_fpp_with_response[which(sorted_duo_fpp_with_response$matchId=="0006eb8c17708d" ),] 
+match_1_groups_with_response <- unique(match_1_with_response$groupId)
+head(match_1_with_response)
+length(match_1_groups)
+```
+
+
+```{r}
+subset_and_order_full_data_by_game_type <- function(game_type, full_data = PUBG_full) {
+  subset_data <- full_data[which(full_data$matchType==game_type),] 
+  ordered_data <- subset_data[order(subset_data$matchId,subset_data$groupId), ]
+  return(ordered_data)
+}
+length(unique(PUBG_full$matchId))
+length(unique(PUBG_full$matchId)) + length(unique(PUBG_test$matchId))
+sorted_solo_full_data <- subset_and_order_full_data_by_game_type("solo")
+
+PUBG_full_ordered <- PUBG_full[order(PUBG_full$matchId,PUBG_full$groupId), ]
+head(PUBG_full_ordered)
+
+```
+
+
+```{r}
+# Solo Data
+solo_data_matrix <- full_data_matrix[which(full_data_matrix$matchType=='solo'),] 
+solo_entries <- PUBG_full[which(PUBG_full$matchType=='solo') , ]
+solo_response <- solo_entries$winPlacePerc
+
+# Solo FPP Data
+solo_fpp_data_matrix <- full_data_matrix[which(full_data_matrix$matchType=='solo-fpp'),] 
+solo_fpp_entries <- PUBG_full[which(PUBG_full$matchType=='solo-fpp') , ]
+solo_fpp_response <- solo_fpp_entries$winPlacePerc
+
+# Duo Data
+duo_data_matrix <- full_data_matrix[which(full_data_matrix$matchType=='duo'),] 
+duo_entries <- PUBG_full[which(PUBG_full$matchType=='duo') , ]
+duo_response <- duo_entries$winPlacePerc
+
+# Duo FPP Data
+duo_fpp_data_matrix <- full_data_matrix[which(full_data_matrix$matchType=='duo-fpp'),] 
+duo_fpp_entries <- PUBG_full[which(PUBG_full$matchType=='duo-fpp') , ]
+duo_fpp_response <- duo_fpp_entries$winPlacePerc
+
+# squad Data
+squad_data_matrix <- full_data_matrix[which(full_data_matrix$matchType=='squad'),] 
+squad_entries <- PUBG_full[which(PUBG_full$matchType=='squad') , ]
+squad_response <- squad_entries$winPlacePerc
+
+# squad FPP Data
+squad_fpp_data_matrix <- full_data_matrix[which(full_data_matrix$matchType=='squad-fpp'),] 
+squad_fpp_entries <- PUBG_full[which(PUBG_full$matchType=='squad-fpp') , ]
+squad_fpp_response <- squad_fpp_entries$winPlacePerc
+```
+
+
+```{r}
+sorted_duo_fpp <- duo_fpp_data_matrix[order(duo_fpp_data_matrix$matchId,duo_fpp_data_matrix$groupId), ]
+match_1 <- sorted_duo_fpp[which(sorted_duo_fpp$matchId=="0006eb8c17708d" ),] 
+match_1_groups <- unique(match_1$groupId)
+head(match_1_groups)
+head(match_1)
+```
+
+
+```{r}
+#pivoted_data <- summarise(group_by(PUBG_full,groupId), Number_Players=mean(numGroups))
+#head(pivoted_data)
+```
+
+
+
+```{r}
+groups_and_duration <- select(PUBG_full_ordered,matchId,numGroups,matchDuration)
+num_Groups_vs_match_duration <- unique(groups_and_duration)
+length(num_Groups_vs_match_duration$numGroups) == length(unique(PUBG_full$matchId))
+linear_model_of_num_groups_v_match_duration <- lm(num_Groups_vs_match_duration$matchDuration ~ num_Groups_vs_match_duration$numGroups)
+plot(linear_model_of_num_groups_v_match_duration)
+
+plot_num_groups_vs_duration <- function(ordered_data = PUBG_full_ordered) {
+  groups_and_duration <- select(ordered_data,matchId,numGroups,matchDuration)
+  num_Groups_vs_match_duration <- unique(groups_and_duration)
+  #plot(num_Groups_vs_match_duration$numGroups,num_Groups_vs_match_duration$matchDuration)
+  ggplot(num_Groups_vs_match_duration, aes(x=numGroups, y=matchDuration)) +
+  geom_hline(yintercept=1600, linetype="dashed", color = "red") +
+  ggtitle("Solo First Person Perspective") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  labs(x = "Number of Groups", y = "Match Duration (seconds)") + 
+  geom_point()
+}
+
+subset_and_order_full_data_by_game_type <- function(game_type, full_data = PUBG_full) {
+  subset_data <- full_data[which(full_data$matchType==game_type),] 
+  ordered_data <- subset_data[order(subset_data$matchId,subset_data$groupId), ]
+  return(ordered_data)
+}
+
+
+plot_num_groups_vs_duration(subset_and_order_full_data_by_game_type("solo-fpp"))
+
+
+plot_num_groups_vs_duration(subset_and_order_full_data_by_game_type("solo"))
+plot_num_groups_vs_duration(subset_and_order_full_data_by_game_type("solo-fpp"))
+plot_num_groups_vs_duration(subset_and_order_full_data_by_game_type("duo"))
+plot_num_groups_vs_duration(subset_and_order_full_data_by_game_type("duo-fpp"))
+plot_num_groups_vs_duration(subset_and_order_full_data_by_game_type("squad"))
+plot_num_groups_vs_duration(subset_and_order_full_data_by_game_type("squad-fpp"))
+```
+
+Main Question: Can we use regression and clustering to figure out the best strategies for placing highly in PUBG?  In particular we want to create
+
+## EDA
+
+TODO: write motivation for EDA
+
+First lets try and get a feel for the different types of PUBG game stats.  
+
+```{r}
+all_types <-table(PUBG_full$matchType)
+# Over 99% of the data falls into 6 main types
+main_types <- all_types[c("solo","solo-fpp","duo","duo-fpp","squad","squad-fpp")]
+
+df_types <- data.frame(Rules=c('Original','FPP Only'), Alone =c(main_types[1],main_types[2]), Duo=c(main_types[3],main_types[4]), Squad=c(main_types[5],main_types[6]))
+dat.g <- gather(df_types, type, value, -Rules)
+
+# Stupid hack switching Solo to Alone in order to order the bar chart correctly
+ggplot(dat.g, aes(x = type, y = value )) + 
+  geom_bar(aes(fill = Rules), stat = "identity", position = "dodge") +
+  labs(x = "Group Size", y = "Number of PGaPS") +
+  scale_y_continuous(label=comma) + 
+  ggtitle("Number of PGaPS for Different Types of PUBG Games") +
+  theme(plot.title = element_text(hjust = 0.5)) 
+```
+
+
+
+```{r}
+#dat <- data.frame(country=c('USA','Brazil','Ghana','England','Australia'), Stabbing=c(15,10,9,6,7), #Accidents=c(20,25,21,28,15), Suicide=c(3,10,7,8,6))
+
+#dat.g <- gather(dat, type, value, -country)
+#ggplot(dat.g, aes(type, value)) + 
+ # geom_bar(aes(fill = country), stat = "identity", position = "dodge")
+
+```
+

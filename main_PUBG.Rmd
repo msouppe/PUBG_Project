@@ -15,9 +15,9 @@ library("plyr")
 source('util.R')
 ```
 
-## Load data
+## Load  and Shuffle Data
 ```{r}
-#setwd("/Users/alex/Desktop/AMS204-FinalProject")
+setwd("/Users/alex/Desktop/PUBG_Project")
 set.seed(57483)
 PUBG_full <- read.csv("data/train_V2.csv")
 PUBG_full <- PUBG_full[sample(nrow(PUBG_full)),]
@@ -137,3 +137,74 @@ acc_c3_solo_fpp <- accuracy(c3_solo_fpp_logit$model, cluster_3_solo_fpp_small_co
 c4_solo_fpp_logit<- logistic(cluster_4_solo_fpp_small_cov, cluster_4_solo_fpp_small_resp)
 acc_c4_solo_fpp <- accuracy(c4_solo_fpp_logit$model, cluster_4_solo_fpp_small_cov, c4_solo_fpp_logit$thresh)
 ```
+
+## Analyzing the Clusters 
+
+### Infer the different strategies/groups that each cluster represents
+
+```{r}
+org_good_perf <- solo_org_small_resp >= .9
+solo_org_cluster_df <- data.frame(solo_org_small_full, org_good_perf)
+org_id <- 1:length(solo_org_cluster_df$assists)
+solo_org_cluster_ids_df <- data.frame(org_id,solo_org_cluster_df)
+solo_org_cluster_ids_df <- solo_org_cluster_ids_df[, !(names(solo_org_cluster_ids_df) %in% c("winPlacePerc"))]
+names(solo_org_cluster_ids_df)
+mdata <- melt(solo_org_cluster_ids_df, id.vars = c("org_id"))
+org_cluster_pivot <- dcast(mdata, solo_org_cluster_ids_df$cluster~variable, fun.aggregate = mean)
+org_cluster_freqs <- table(solo_org_cluster_df$cluster)
+org_cluster_freqs_normed <- table(solo_org_cluster_df$cluster) / sum(table(solo_org_cluster_df$cluster))
+org_cluster_pivot <- data.frame(org_cluster_pivot, org_cluster_freqs)
+org_cluster_pivot <- data.frame(org_cluster_pivot, org_cluster_freqs_normed)
+org_cluster_pivot
+# Now we will
+
+no_noobs_org_cluster_pivot <- org_cluster_pivot[-c(3),]
+no_noobs_org_cluster_pivot
+# Just look at Data Frame and Subset by Damage Dealt, kills, ride dist, swim dist, walk dist
+# 
+#scale(no_noobs_cluster_pivot)
+
+```
+
+
+```{r}
+fpp_good_perf <- solo_fpp_small_resp >= .9
+solo_fpp_cluster_df <- data.frame(solo_fpp_small_full, fpp_good_perf)
+fpp_id <- 1:length(solo_fpp_cluster_df$assists)
+solo_fpp_cluster_ids_df <- data.frame(fpp_id,solo_fpp_cluster_df)
+solo_fpp_cluster_ids_df <- solo_fpp_cluster_ids_df[, !(names(solo_fpp_cluster_ids_df) %in% c("winPlacePerc"))]
+names(solo_fpp_cluster_ids_df)
+mdata <- melt(solo_fpp_cluster_ids_df, id.vars = c("fpp_id"))
+fpp_cluster_pivot <- dcast(mdata, solo_fpp_cluster_ids_df$cluster~variable, fun.aggregate = mean)
+fpp_cluster_freqs <- table(solo_fpp_cluster_df$cluster)
+fpp_cluster_freqs_normed <- table(solo_fpp_cluster_df$cluster) / sum(table(solo_fpp_cluster_df$cluster))
+fpp_cluster_pivot <- data.frame(fpp_cluster_pivot, fpp_cluster_freqs)
+fpp_cluster_pivot <- data.frame(fpp_cluster_pivot, fpp_cluster_freqs_normed)
+fpp_cluster_pivot
+
+# Now we will
+
+no_noobs_fpp_cluster_pivot <- fpp_cluster_pivot[-c(3),]
+no_noobs_fpp_cluster_pivot
+```
+
+
+### Make Graph Showing How Clustering Goodness Changes Over Time 
+
+Setting same seed as used in clustering functions to show how value changes with different clusters
+
+```{r}
+set.seed(34529078)
+```
+
+
+## Analyzing the Logistic Regression
+
+### Make 4x4 table (could be in google slides) showing the different types of errors (Type 1 False Positive: Predict 1 is actually 0) (Type 2 False Negative: Predict 0 is actually 1), as well as the different types of correct estimates
+
+
+
+
+
+
+
