@@ -30,75 +30,30 @@ solo <- preprocess(PUBG_full, 'solo')
 solo_org_small_cov <- solo$first
 solo_org_small_resp <- solo$second
 solo_org_small_full <- data.frame(solo_org_small_cov, solo_org_small_resp)
-colnames(solo_org_small_full)[20] <- 'winPlacePerc'
+colnames(solo_org_small_full)[19] <- 'winPlacePerc'
 
 ### Solo first person perspective dataset
 solo_fpp <- preprocess(PUBG_full, 'solo-fpp')
 solo_fpp_small_cov <- solo_fpp$first
 solo_fpp_small_resp <- solo_fpp$second
 solo_fpp_small_full <- data.frame(solo_fpp_small_cov, solo_fpp_small_resp)
-colnames(solo_fpp_small_full)[20] <- 'winPlacePerc'
-```
-
-## K-means clustering
-```{r}
-### Solo orginal perspective clustering
-# Splitting dataset into clusters
-solo_org_small_full <- append_clustering_feature(solo_org_small_cov, solo_org_small_full)
-solo_org_small <- split_by_the_four_clusters(solo_org_small_full)
-cluster_1_solo_org_small <- data.frame(solo_org_small$first) 
-cluster_2_solo_org_small <- data.frame(solo_org_small$second) 
-cluster_3_solo_org_small <- data.frame(solo_org_small$third) 
-cluster_4_solo_org_small <- data.frame(solo_org_small$fourth)
-
-# Splitting the clusters into covariants and response
-omit_response <- !names(solo_org_small_full) %in% c("winPlacePerc") 
-
-cluster_1_solo_org_small_cov <- cluster_1_solo_org_small[, omit_response]
-cluster_1_solo_org_small_resp <- cluster_1_solo_org_small$winPlacePerc
-cluster_2_solo_org_small_cov <- cluster_2_solo_org_small[, omit_response]
-cluster_2_solo_org_small_resp <- cluster_2_solo_org_small$winPlacePerc
-cluster_3_solo_org_small_cov <- cluster_3_solo_org_small[, omit_response]
-cluster_3_solo_org_small_resp <- cluster_3_solo_org_small$winPlacePerc
-cluster_4_solo_org_small_cov <- cluster_4_solo_org_small[, omit_response]
-cluster_4_solo_org_small_resp <- cluster_4_solo_org_small$winPlacePerc
-```
-
-```{r}
-### Solo first person perspective clustering
-# Splitting dataset into clusters
-solo_fpp_small_full <- append_clustering_feature(solo_fpp_small_cov, solo_fpp_small_full)
-solo_fpp_small <- split_by_the_four_clusters(solo_fpp_small_full)
-cluster_1_solo_fpp_small <- data.frame(solo_fpp_small$first) 
-cluster_2_solo_fpp_small <- data.frame(solo_fpp_small$second) 
-cluster_3_solo_fpp_small <- data.frame(solo_fpp_small$third) 
-cluster_4_solo_fpp_small <- data.frame(solo_fpp_small$fourth)
-
-# Splitting the clusters into covariants and response
-omit_response <- !names(solo_fpp_small_full) %in% c("winPlacePerc") 
-
-cluster_1_solo_fpp_small_cov <- cluster_1_solo_fpp_small[, omit_response]
-cluster_1_solo_fpp_small_resp <- cluster_1_solo_fpp_small$winPlacePerc
-cluster_2_solo_fpp_small_cov <- cluster_2_solo_fpp_small[, omit_response]
-cluster_2_solo_fpp_small_resp <- cluster_2_solo_fpp_small$winPlacePerc
-cluster_3_solo_fpp_small_cov <- cluster_3_solo_fpp_small[, omit_response]
-cluster_3_solo_fpp_small_resp <- cluster_3_solo_fpp_small$winPlacePerc
-cluster_4_solo_fpp_small_cov <- cluster_4_solo_fpp_small[, omit_response]
-cluster_4_solo_fpp_small_resp <- cluster_4_solo_fpp_small$winPlacePerc
+colnames(solo_fpp_small_full)[19] <- 'winPlacePerc'
 ```
 
 ## Data split into train and test set
 ```{r}
+split = 0.9
+
 ### Solo orginal perspective
 len_org = length(solo_org_small_cov$assists)
 
 # Covariates train, test dataset split
-solo_org_small_cov_set <- train_test_split(solo_org_small_cov, 0.9, len_org)
+solo_org_small_cov_set <- train_test_split(solo_org_small_cov, split, len_org)
 train_solo_org_small_cov <- solo_org_small_cov_set$train
 test_solo_org_small_cov <- solo_org_small_cov_set$test
 
 # Response train, test dataset split
-solo_org_small_resp_set <- train_test_split_resp(solo_org_small_resp, 0.9, len_org)
+solo_org_small_resp_set <- train_test_split_resp(solo_org_small_resp, split, len_org)
 train_solo_org_small_resp <- solo_org_small_resp_set$train
 test_solo_org_small_resp <- solo_org_small_resp_set$test
 ```
@@ -118,6 +73,140 @@ train_solo_fpp_small_resp <- solo_fpp_small_resp_set$train
 test_solo_fpp_small_resp <- solo_fpp_small_resp_set$test
 ```
 
+## K-means clustering
+```{r}
+### Solo orginal perspective clustering
+# Splitting dataset into clusters
+solo_org_small_full <- append_clustering_feature(solo_org_small_cov, solo_org_small_full)
+solo_org_small <- split_by_the_four_clusters(solo_org_small_full)
+cluster_1_solo_org_small <- data.frame(solo_org_small$first) 
+cluster_2_solo_org_small <- data.frame(solo_org_small$second) 
+cluster_3_solo_org_small <- data.frame(solo_org_small$third) 
+cluster_4_solo_org_small <- data.frame(solo_org_small$fourth)
+
+# Splitting the clusters into covariants and response
+omit_response <- !names(solo_org_small_full) %in% c("winPlacePerc") 
+
+len_org_clus_1 = length(cluster_1_solo_org_small$assists)
+len_org_clus_2 = length(cluster_2_solo_org_small$assists)
+len_org_clus_3 = length(cluster_3_solo_org_small$assists)
+len_org_clus_4 = length(cluster_4_solo_org_small$assists)
+
+cluster_1_solo_org_small_cov <- cluster_1_solo_org_small[, omit_response]
+cluster_1_solo_org_small_cov_set <- train_test_split(cluster_1_solo_org_small_cov, split, len_org_clus_1)
+c1_train_solo_org_small_cov <- cluster_1_solo_org_small_cov_set$train
+c1_test_solo_org_small_cov <- cluster_1_solo_org_small_cov_set$test
+
+cluster_1_solo_org_small_resp <- cluster_1_solo_org_small$winPlacePerc
+cluster_1_solo_org_small_resp_set <- train_test_split_resp(cluster_1_solo_org_small_resp, split, len_org_clus_1)
+c1_train_solo_org_small_resp <- cluster_1_solo_org_small_resp_set$train
+c1_test_solo_org_small_resp <- cluster_1_solo_org_small_resp_set$test
+
+cluster_2_solo_org_small_cov <- cluster_2_solo_org_small[, omit_response]
+cluster_2_solo_org_small_cov_set <- train_test_split(cluster_2_solo_org_small_cov, split, len_org_clus_2)
+c2_train_solo_org_small_cov <- cluster_2_solo_org_small_cov_set$train
+c2_test_solo_org_small_cov <- cluster_2_solo_org_small_cov_set$test
+
+cluster_2_solo_org_small_resp <- cluster_2_solo_org_small$winPlacePerc
+cluster_2_solo_org_small_resp_set <- train_test_split_resp(cluster_2_solo_org_small_resp, split, len_org_clus_2)
+c2_train_solo_org_small_resp <- cluster_2_solo_org_small_resp_set$train
+c2_test_solo_org_small_resp <- cluster_2_solo_org_small_resp_set$test
+
+cluster_3_solo_org_small_cov <- cluster_3_solo_org_small[, omit_response]
+cluster_3_solo_org_small_cov_set <- train_test_split(cluster_3_solo_org_small_cov, split, len_org_clus_3)
+c3_train_solo_org_small_cov <- cluster_3_solo_org_small_cov_set$train
+c3_test_solo_org_small_cov <- cluster_3_solo_org_small_cov_set$test
+
+cluster_3_solo_org_small_resp <- cluster_3_solo_org_small$winPlacePerc
+cluster_3_solo_org_small_resp_set <- train_test_split_resp(cluster_3_solo_org_small_resp, split, len_org_clus_3)
+c3_train_solo_org_small_resp <- cluster_3_solo_org_small_resp_set$train
+c3_test_solo_org_small_resp <- cluster_3_solo_org_small_resp_set$test
+
+cluster_4_solo_org_small_cov <- cluster_4_solo_org_small[, omit_response]
+cluster_4_solo_org_small_cov_set <- train_test_split(cluster_4_solo_org_small_cov, split, len_org_clus_4)
+c4_train_solo_org_small_cov <- cluster_4_solo_org_small_cov_set$train
+c4_test_solo_org_small_cov <- cluster_4_solo_org_small_cov_set$test
+
+cluster_4_solo_org_small_resp <- cluster_4_solo_org_small$winPlacePerc
+cluster_4_solo_org_small_resp_set <- train_test_split_resp(cluster_4_solo_org_small_resp, split, len_org_clus_4)
+c4_train_solo_org_small_resp <- cluster_4_solo_org_small_resp_set$train
+c4_test_solo_org_small_resp <- cluster_4_solo_org_small_resp_set$test
+
+# cluster_2_solo_org_small_cov <- cluster_2_solo_org_small[, omit_response]
+# cluster_2_solo_org_small_resp <- cluster_2_solo_org_small$winPlacePerc
+# cluster_3_solo_org_small_cov <- cluster_3_solo_org_small[, omit_response]
+# cluster_3_solo_org_small_resp <- cluster_3_solo_org_small$winPlacePerc
+# cluster_4_solo_org_small_cov <- cluster_4_solo_org_small[, omit_response]
+# cluster_4_solo_org_small_resp <- cluster_4_solo_org_small$winPlacePerc
+```
+
+```{r}
+### Solo first person perspective clustering
+# Splitting dataset into clusters
+solo_fpp_small_full <- append_clustering_feature(solo_fpp_small_cov, solo_fpp_small_full)
+solo_fpp_small <- split_by_the_four_clusters(solo_fpp_small_full)
+cluster_1_solo_fpp_small <- data.frame(solo_fpp_small$first) 
+cluster_2_solo_fpp_small <- data.frame(solo_fpp_small$second) 
+cluster_3_solo_fpp_small <- data.frame(solo_fpp_small$third) 
+cluster_4_solo_fpp_small <- data.frame(solo_fpp_small$fourth)
+
+# Splitting the clusters into covariants and response
+omit_response <- !names(solo_fpp_small_full) %in% c("winPlacePerc") 
+
+len_fpp_clus_1 = length(cluster_1_solo_fpp_small$assists)
+len_fpp_clus_2 = length(cluster_2_solo_fpp_small$assists)
+len_fpp_clus_3 = length(cluster_3_solo_fpp_small$assists)
+len_fpp_clus_4 = length(cluster_4_solo_fpp_small$assists)
+
+cluster_1_solo_fpp_small_cov <- cluster_1_solo_fpp_small[, omit_response]
+cluster_1_solo_fpp_small_cov_set <- train_test_split(cluster_1_solo_fpp_small_cov, split, len_fpp_clus_1)
+c1_train_solo_fpp_small_cov <- cluster_1_solo_fpp_small_cov_set$train
+c1_test_solo_fpp_small_cov <- cluster_1_solo_fpp_small_cov_set$test
+
+cluster_1_solo_fpp_small_resp <- cluster_1_solo_fpp_small$winPlacePerc
+cluster_1_solo_fpp_small_resp_set <- train_test_split_resp(cluster_1_solo_fpp_small_resp, split, len_fpp_clus_1)
+c1_train_solo_fpp_small_resp <- cluster_1_solo_fpp_small_resp_set$train
+c1_test_solo_fpp_small_resp <- cluster_1_solo_fpp_small_resp_set$test
+
+cluster_2_solo_fpp_small_cov <- cluster_2_solo_fpp_small[, omit_response]
+cluster_2_solo_fpp_small_cov_set <- train_test_split(cluster_2_solo_fpp_small_cov, split, len_fpp_clus_2)
+c2_train_solo_fpp_small_cov <- cluster_2_solo_fpp_small_cov_set$train
+c2_test_solo_fpp_small_cov <- cluster_2_solo_fpp_small_cov_set$test
+
+cluster_2_solo_fpp_small_resp <- cluster_2_solo_fpp_small$winPlacePerc
+cluster_2_solo_fpp_small_resp_set <- train_test_split_resp(cluster_2_solo_fpp_small_resp, split, len_fpp_clus_2)
+c2_train_solo_fpp_small_resp <- cluster_2_solo_fpp_small_resp_set$train
+c2_test_solo_fpp_small_resp <- cluster_2_solo_fpp_small_resp_set$test
+
+cluster_3_solo_fpp_small_cov <- cluster_3_solo_fpp_small[, omit_response]
+cluster_3_solo_fpp_small_cov_set <- train_test_split(cluster_3_solo_fpp_small_cov, split, len_fpp_clus_3)
+c3_train_solo_fpp_small_cov <- cluster_3_solo_fpp_small_cov_set$train
+c3_test_solo_fpp_small_cov <- cluster_3_solo_fpp_small_cov_set$test
+
+cluster_3_solo_fpp_small_resp <- cluster_3_solo_fpp_small$winPlacePerc
+cluster_3_solo_fpp_small_resp_set <- train_test_split_resp(cluster_3_solo_fpp_small_resp, split, len_fpp_clus_3)
+c3_train_solo_fpp_small_resp <- cluster_3_solo_fpp_small_resp_set$train
+c3_test_solo_fpp_small_resp <- cluster_3_solo_fpp_small_resp_set$test
+
+cluster_4_solo_fpp_small_cov <- cluster_4_solo_fpp_small[, omit_response]
+cluster_4_solo_fpp_small_cov_set <- train_test_split(cluster_4_solo_fpp_small_cov, split, len_fpp_clus_4)
+c4_train_solo_fpp_small_cov <- cluster_4_solo_fpp_small_cov_set$train
+c4_test_solo_fpp_small_cov <- cluster_4_solo_fpp_small_cov_set$test
+
+cluster_4_solo_fpp_small_resp <- cluster_4_solo_fpp_small$winPlacePerc
+cluster_4_solo_fpp_small_resp_set <- train_test_split_resp(cluster_4_solo_fpp_small_resp, split, len_fpp_clus_4)
+c4_train_solo_fpp_small_resp <- cluster_4_solo_fpp_small_resp_set$train
+c4_test_solo_fpp_small_resp <- cluster_4_solo_fpp_small_resp_set$test
+
+# cluster_1_solo_fpp_small_cov <- cluster_1_solo_fpp_small[, omit_response]
+# cluster_1_solo_fpp_small_resp <- cluster_1_solo_fpp_small$winPlacePerc
+# cluster_2_solo_fpp_small_cov <- cluster_2_solo_fpp_small[, omit_response]
+# cluster_2_solo_fpp_small_resp <- cluster_2_solo_fpp_small$winPlacePerc
+# cluster_3_solo_fpp_small_cov <- cluster_3_solo_fpp_small[, omit_response]
+# cluster_3_solo_fpp_small_resp <- cluster_3_solo_fpp_small$winPlacePerc
+# cluster_4_solo_fpp_small_cov <- cluster_4_solo_fpp_small[, omit_response]
+# cluster_4_solo_fpp_small_resp <- cluster_4_solo_fpp_small$winPlacePerc
+```
 
 ## SMALLER MODEL - SKIP FOR NOW - Data split into train and test set
 ```{r}
@@ -180,17 +269,34 @@ acc_org_thresh <- test_solo_org_small_resp >= 0.9
 acc_solo_org_test <- accuracy(solo_org_logit$model, test_solo_org_small_cov, acc_org_thresh)
 
 # Cluster
-c1_solo_org_logit<- logistic(cluster_1_solo_org_small_cov, cluster_1_solo_org_small_resp)
-acc_c1_solo_org <- accuracy(c1_solo_org_logit$model, cluster_1_solo_org_small_cov, c1_solo_org_logit$thresh)
+c1_solo_org_logit<- logistic(c1_train_solo_org_small_cov, c1_train_solo_org_small_resp)
+c1_acc_org_thresh <- test_solo_org_small_resp >= 0.9
+acc_c1_solo_org <- accuracy(c1_solo_org_logit$model, c1_test_solo_org_small_cov, c1_acc_org_thresh)
 
-c2_solo_org_logit<- logistic(cluster_2_solo_org_small_cov, cluster_2_solo_org_small_resp)
-acc_c2_solo_org <- accuracy(c2_solo_org_logit$model, cluster_2_solo_org_small_cov, c2_solo_org_logit$thresh)
+c2_solo_org_logit<- logistic(c2_train_solo_org_small_cov, c2_train_solo_org_small_resp)
+c2_acc_org_thresh <- test_solo_org_small_resp >= 0.9
+acc_c2_solo_org <- accuracy(c2_solo_org_logit$model, c2_test_solo_org_small_cov, c2_acc_org_thresh)
 
-c3_solo_org_logit<- logistic(cluster_3_solo_org_small_cov, cluster_3_solo_org_small_resp)
-acc_c3_solo_org <- accuracy(c3_solo_org_logit$model, cluster_3_solo_org_small_cov, c3_solo_org_logit$thresh)
+c3_solo_org_logit<- logistic(c3_train_solo_org_small_cov, c3_train_solo_org_small_resp)
+c3_acc_org_thresh <- test_solo_org_small_resp >= 0.9
+acc_c3_solo_org <- accuracy(c3_solo_org_logit$model, c3_test_solo_org_small_cov, c3_acc_org_thresh)
 
-c4_solo_org_logit<- logistic(cluster_4_solo_org_small_cov, cluster_4_solo_org_small_resp)
-acc_c4_solo_org <- accuracy(c4_solo_org_logit$model, cluster_4_solo_org_small_cov, c4_solo_org_logit$thresh)
+c4_solo_org_logit<- logistic(c4_train_solo_org_small_cov, c4_train_solo_org_small_resp)
+c4_acc_org_thresh <- test_solo_org_small_resp >= 0.9
+acc_c4_solo_org <- accuracy(c4_solo_org_logit$model, c4_test_solo_org_small_cov, c4_acc_org_thresh)
+
+n1_combined <- acc_c1_solo_org$n1 + acc_c2_solo_org$n1 + acc_c3_solo_org$n1 + acc_c4_solo_org$n1
+n2_combined <- acc_c1_solo_org$n2 + acc_c2_solo_org$n2 + acc_c3_solo_org$n2 + acc_c4_solo_org$n2
+n3_combined <- acc_c1_solo_org$n3 + acc_c2_solo_org$n3 + acc_c3_solo_org$n3 + acc_c4_solo_org$n3
+n4_combined <- acc_c1_solo_org$n4 + acc_c2_solo_org$n4 + acc_c3_solo_org$n4 + acc_c4_solo_org$n4
+n_total <- n1_combined + n2_combined + n3_combined + n4_combined
+  
+p1 <- n1_combined / n_total
+p2 <- n2_combined / n_total
+p3 <- n3_combined / n_total
+p4 <- n4_combined / n_total
+org_acc <- p1 + p4
+cat("\ncluster accuracy", org_acc)
 ```
 
 ```{r}
@@ -201,17 +307,34 @@ acc_fpp_thresh <- test_solo_fpp_small_resp >= 0.9
 acc_solo_fpp_test <- accuracy(solo_fpp_logit$model, test_solo_fpp_small_cov, acc_fpp_thresh)
 
 # Cluster
-c1_solo_fpp_logit<- logistic(cluster_1_solo_fpp_small_cov, cluster_1_solo_fpp_small_resp)
-acc_c1_solo_fpp <- accuracy(c1_solo_fpp_logit$model, cluster_1_solo_fpp_small_cov, c1_solo_fpp_logit$thresh)
+c1_solo_fpp_logit<- logistic(c1_train_solo_fpp_small_cov, c1_train_solo_fpp_small_resp)
+c1_acc_fpp_thresh <- test_solo_fpp_small_resp >= 0.9
+acc_c1_solo_fpp <- accuracy(c1_solo_fpp_logit$model, c1_test_solo_fpp_small_cov, c1_acc_fpp_thresh)
 
-c2_solo_fpp_logit<- logistic(cluster_2_solo_fpp_small_cov, cluster_2_solo_fpp_small_resp)
-acc_c2_solo_fpp <- accuracy(c2_solo_fpp_logit$model, cluster_2_solo_fpp_small_cov, c2_solo_fpp_logit$thresh)
+c2_solo_fpp_logit<- logistic(c2_train_solo_fpp_small_cov, c2_train_solo_fpp_small_resp)
+c2_acc_fpp_thresh <- test_solo_fpp_small_resp >= 0.9
+acc_c2_solo_fpp <- accuracy(c2_solo_fpp_logit$model, c2_test_solo_fpp_small_cov, c2_acc_fpp_thresh)
 
-c3_solo_fpp_logit<- logistic(cluster_3_solo_fpp_small_cov, cluster_3_solo_fpp_small_resp)
-acc_c3_solo_fpp <- accuracy(c3_solo_fpp_logit$model, cluster_3_solo_fpp_small_cov, c3_solo_fpp_logit$thresh)
+c3_solo_fpp_logit<- logistic(c3_train_solo_fpp_small_cov, c3_train_solo_fpp_small_resp)
+c3_acc_fpp_thresh <- test_solo_fpp_small_resp >= 0.9
+acc_c3_solo_fpp <- accuracy(c3_solo_fpp_logit$model, c3_test_solo_fpp_small_cov, c3_acc_fpp_thresh)
 
-c4_solo_fpp_logit<- logistic(cluster_4_solo_fpp_small_cov, cluster_4_solo_fpp_small_resp)
-acc_c4_solo_fpp <- accuracy(c4_solo_fpp_logit$model, cluster_4_solo_fpp_small_cov, c4_solo_fpp_logit$thresh)
+c4_solo_fpp_logit<- logistic(c4_train_solo_fpp_small_cov, c4_train_solo_fpp_small_resp)
+c4_acc_fpp_thresh <- test_solo_fpp_small_resp >= 0.9
+acc_c4_solo_fpp <- accuracy(c4_solo_fpp_logit$model, c4_test_solo_fpp_small_cov, c4_acc_fpp_thresh)
+
+n1_combined <- acc_c1_solo_fpp$n1 + acc_c2_solo_fpp$n1 + acc_c3_solo_fpp$n1 + acc_c4_solo_fpp$n1
+n2_combined <- acc_c1_solo_fpp$n2 + acc_c2_solo_fpp$n2 + acc_c3_solo_fpp$n2 + acc_c4_solo_fpp$n2
+n3_combined <- acc_c1_solo_fpp$n3 + acc_c2_solo_fpp$n3 + acc_c3_solo_fpp$n3 + acc_c4_solo_fpp$n3
+n4_combined <- acc_c1_solo_fpp$n4 + acc_c2_solo_fpp$n4 + acc_c3_solo_fpp$n4 + acc_c4_solo_fpp$n4
+n_total <- n1_combined + n2_combined + n3_combined + n4_combined
+  
+p1 <- n1_combined / n_total
+p2 <- n2_combined / n_total
+p3 <- n3_combined / n_total
+p4 <- n4_combined / n_total
+fpp_acc <- p1 + p4
+cat("\ncluster accuracy", fpp_acc)
 ```
 
 ## Analyzing the Clusters 
@@ -277,10 +400,3 @@ set.seed(34529078)
 ## Analyzing the Logistic Regression
 
 ### Make 4x4 table (could be in google slides) showing the different types of errors (Type 1 False Positive: Predict 1 is actually 0) (Type 2 False Negative: Predict 0 is actually 1), as well as the different types of correct estimates
-
-
-
-
-
-
-

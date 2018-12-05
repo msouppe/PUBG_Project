@@ -101,9 +101,9 @@ accuracy <- function(model, covariants, threhold) {
   pred <- ifelse(prob > 0.5, 1, 0)
   actual <- ifelse(threhold > 0.5, 1, 0)
   acc <- mean(pred == actual)
-  roc(pred, actual)
+  n <- roc(pred, actual)
   paste(toString(round(acc*100, 2)), "%")
-  return(acc)
+  return(n)
 }
 
 roc <- function(pred, actual) {
@@ -129,6 +129,7 @@ roc <- function(pred, actual) {
   
   cat("\naccuracy rate: ", p1+p4)
   
+  return(list(n1=n1, n2=n2, n3=n3, n4=n4))
 }
 
 dropNA <- function(dataset) {
